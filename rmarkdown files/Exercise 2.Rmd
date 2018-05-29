@@ -1,0 +1,258 @@
+---
+title: "Systematic Conservation Prioritization: Exercise 2"
+subtitle: Prioritizr demonstration - North Argentinian Dry Chaco example
+author: Liz Law workingconservation@gmail.com
+date: Humboldt Universität Modul Conservation Biogeography - summer term 2018
+output: html_document
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# A more realistic example
+
+The last problem we dealt with was quite small, less than 100 cells, and only 6 species. Most conservation problems we will encounter in the real world are much more complex, involving more species, larger areas, issues such as needing to include some areas (such as existing protected areas) and exclude others (that are not available for conservation), as well as considering the spatial arrangement (connectivity and clustering) of the reserve network. 
+
+We will now have a look at the NADC data on a 10km raster resolution, including additional data, and have a go at developing a more complex problem.
+
+## Loading the packages and setting the working directory (if required)
+
+Same as before, we need to tell R what packages to use, and where our data is - make sure you change the working directory to your own! You don't have to do this step if you still have it all from Exercise 1. 
+
+```{r,eval=TRUE,echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
+## only run if opening R anew. If still loaded from last time this is not required.
+
+# specify packages
+packList <- c("raster","rgdal","sp","devtools","prioritizr")
+
+# check if package is installed; if not, install them
+for(i in 1:length(packList)){
+  if(!is.element(noquote(packList[i]),installed.packages()[,1])){
+    install.packages(packList[i],dependencies = T)
+  }
+}
+# load packages
+sapply(packList, require, character.only=T)
+
+# load lpsymphony (reinstall if you need to)
+ source("https://bioconductor.org/biocLite.R") 
+ biocLite("lpsymphony") # on one computer it asked for updating some other packages --> "n" is
+                   #  a possible option
+require(lpsymphony)
+
+# specify working directory - change this to your own!
+wdr <-'T:/el/NADC_prioritizr/inputdata/'
+```
+## Loading the data
+
+Some data layers come in as single layer rasters, others as stacks of rasters:
+
+```{r,eval=TRUE,echo=TRUE}
+# load the 10km raster data
+forestbirds <- stack(paste0(wdr,'forestbirds10.tif'))
+otherbirds <- stack(paste0(wdr,'otherbirds10.tif'))
+mammals <- stack(paste0(wdr,'mammals10.tif'))
+protectedareas <- raster(paste0(wdr,'protectedareas10.tif'))
+areakm <- raster(paste0(wdr, 'areakm10.tif'))
+intensiveareas <- raster(paste0(wdr,'intensiveareas10.tif'))
+soyprofit <- raster(paste0(wdr,'soyprofit10.tif')) 
+smallholderdensity <- raster(paste0(wdr,'smallholderdensity10.tif'))
+carbon <- raster(paste0(wdr,'carbon10.tif'))
+```  
+
+Let's check the data imported correctly, by running these lines one at a time. Pay special attention to the soyprofit data - as we will be using this for the cost, all the values need to be >0. 
+
+```{r,eval=FALSE,echo=TRUE}
+# check import
+print(forestbirds); plot(forestbirds)
+print(otherbirds); plot(otherbirds)
+print(mammals); plot(mammals)
+print(protectedareas); plot(protectedareas)
+print(intensiveareas); plot(intensiveareas)
+print(soyprofit); plot(soyprofit)
+print(smallholderdensity); plot(smallholderdensity)
+``` 
+
+What are these data exactly? That's a great question, and one you should always ask! Check the descriptions in the Systematic Conservation Prioritization.pdf
+
+Now, let's find out the names of the species we are dealing with, and allocate them to the data. It's always useful to know what species you are dealing with - for example whether they are threatened, endemic or particular to a type of habitat (e.g. wetlands), native, invasive, a keystone ecological species, of cultural significance or economic importance. We might want to treat these different types of species differently in an analysis!
+
+```{r, eval = TRUE, echo = TRUE}
+# load species names and examine data
+speciesnames <- read.csv(paste0(wdr,'speciesnames.csv'))
+print(speciesnames)
+
+# allocate the names to the species rasters
+names(forestbirds) <- speciesnames$SpeciesName[speciesnames$Type=='ForestBird']
+names(otherbirds) <- speciesnames$SpeciesName[speciesnames$Type=='OtherBird']
+names(mammals) <- speciesnames$SpeciesName[speciesnames$Type=='Mammal']
+```
+
+## Gap analysis
+
+Before we go into the prioritization, it is always useful to get an understanding of our study region and the species we are interested in. Here we do this with a simple 'gap analysis' - an assessment of how much of each species is already in the reserve network. 
+
+First, we find out how much area is in the reserve network. For this, we will simply assume that cells with more than 50% of their area in the reserve network are 'protected', and less than that 'not protected'. 
+Second, we find out how much of each species there could be across the study area. 
+Third, we find out how much of each species is represented within the current reserve network. 
+
+```{r, eval = TRUE, echo = TRUE}
+# Gap analysis
+# how much area already in reserves?
+# protectedareas>50 gives us a binary raster (true/false) that we need to times by the planning unit area
+reserved <- protectedareas>=50
+plot(reserved)
+reservearea <- cellStats(areakm*reserved, sum)
+totalarea <- cellStats(areakm, sum)
+reservearea/totalarea*100
+
+# species totals
+speciestotals <- c( round(cellStats(forestbirds, sum)),
+                    round(cellStats(otherbirds, sum)),
+                    round(cellStats(mammals, sum)))
+speciesprotected <- c( round(cellStats(forestbirds*reserved, sum)),
+                       round(cellStats(otherbirds*reserved, sum)),
+                       round(cellStats(mammals*reserved, sum)))
+speciesnames <- c( names(forestbirds),
+                   names(otherbirds),
+                   names(mammals))
+speciesprotected <- as.data.frame(cbind( 
+                           speciesnames, 
+                           speciestotals, 
+                           speciesprotected, 
+                           percentprotected = round(speciesprotected/speciestotals*100, 2)))
+rownames(speciesprotected) <- NULL
+print(speciesprotected)
+
+```
+
+*What proportion of the area is already protected?*
+*Which species really need more protection?*
+
+## Prioritizr examples
+
+### Lock in, lock out
+
+We saw just the basic prioritizr example using the simplified data before. So let's launch straight in to including some more complexities - locking in and locking out certain cells. 
+
+For example, we might want to lock in cells that already have existing protected areas.  
+*Why might we do this? What are the implications of this?* 
+
+We might also want to lock out cells that are already intensive agriculture.  
+*Why might we do this? What are the implications of this?*
+
+Note, one of the things we need to be careful with here is feasibility - we can't tell prioritizr to lock in and lock out the same cells. This just does not make sense. In this case we are lucky: the lock in and lock out cells that we use are not overlapping. Further, if they do overlap, Prioritizr knows this and will give an informative error message.  
+
+```{r, eval = TRUE, echo = TRUE}
+# set up the problem
+p0 <- problem(soyprofit, stack(forestbirds, otherbirds, mammals)) %>%
+  add_min_set_objective() %>%
+  add_relative_targets(0.17) %>%
+  add_locked_in_constraints(protectedareas>50) %>%
+  add_locked_out_constraints(intensiveareas>50) %>%
+  add_binary_decisions()  %>%
+  add_lpsymphony_solver(gap=0.1) 
+
+s0 <- solve(p0)
+```
+
+```{r, eval = TRUE, echo = TRUE}
+# some post-processing options:
+plot(s0, main = paste("p0 cost =", s0@objective), 
+     breaks = c(0, 0.5, 1),  col = c("grey70", "#0A5640"))
+
+cellStats(s0*soyprofit, sum)    # cost in lost soy profit
+cellStats(s0*areakm, sum)     # selected area 
+cellStats(s0*forestbirds[[1]], sum) # amount of Cacicus chrysopterus selected (forest bird 1)
+```
+
+### Adding connectivity
+
+So far we have been dealing with linear problems, in which the selection of one cell does not influence the benefit values of another. But there are many reasons why we might want certain spatial arrangements in our protected area networks. You might remember the SLOSS debate from the last lecture, for instance, which deals mainly with species requirements. But also, fewer, larger reserves can make it easier/cheaper to manage (economies of scale), and for the general public to know where is protected and where not.
+
+Including connectivity into conservation problems makes them non-linear, because the selection of one cell does influence the benefit values of another. However, one of the major advancements programmed into Prioritizr is the linearization of these non-linear problems. First described (for conservation problems) in Beyer et al (2016), this mathematical trick allows us to solve these problems using linear/integer programming methods. 
+
+In Prioritizr there are several different methods to include connectivity concerns. Some work by adding 'constraints' such as requiring selected cells to have a certain number of selected neighbours. Other options work via adding a penalty to the cost / minimization objective. We will use one version of the latter: the `add_boundary_penalties` option.
+
+This option is the same as the one implemented in Marxan. For every exposed boundary of a solution, it adds a penalty, relative to the length of this exposed boundary. 
+
+To implement this, we will first create the boundary matrix. This will create a *sparse matrix* of data which represents the boundary lengths between each cell pair. If we don't do this ourselves, Prioritizr will create one automatically from the cost/pu data, but this way gives us a little more control, and if we are doing several different analyses using the same data it saves us from having to re-make this data every time. 
+
+But first, here is an example of how this boundary length matrix works:
+
+```{r, eval = TRUE, echo = TRUE}
+# lets create a little test raster
+test <- crop(soyprofit, extent(-284816.9, -254816.9, 1123636, 1153636))
+test
+# create labels to plot
+puidtest <- c(1,2,'NA',3,4,5,6,7,8)
+# identify their locations
+xytest <- xyFromCell(test, 1:9)
+# plot with labels
+plot(test, main = "test, puid") 
+text(xytest[,1], xytest[,2], puidtest, col='gray')
+
+# then run the boundary matrix
+blmtest <- boundary_matrix(test)
+print(blmtest)
+
+# what exactly does this mean? Let's look at the help file, under 'details'
+?boundary_matrix
+```
+
+This clarifies for us that "Cells on the off-diagonal indicate the length of the shared boundary between two different planning units. Cells on the diagonal indicate length of a given planning unit's edges that have no neighbors." *Check that this makes sense to you given the data we entered above, and the matrix that resulted.*
+
+Let's create the boundary matrix for our NADC problem. 
+We can just add this additional penalty to the existing problem, to create the new problem 'p1'.
+
+```{r, eval = TRUE, echo = TRUE}
+# create boundary matrix
+blm <- boundary_matrix(soyprofit)
+
+# add this into the problem from before
+p1 <- p0 %>% 
+      add_boundary_penalties(penalty = 0.05, edge_factor = 0.5, boundary_data = blm)
+
+s1 <- solve(p1)
+```
+
+Some post processing options, the same as last time:
+
+```{r, eval = TRUE, echo = TRUE}
+plot(s1, main = paste("p1 cost =", s1@objective), 
+     breaks = c(0, 0.5, 1),  col = c("grey70", "#0A5640"))
+
+cellStats(s1*soyprofit, sum)    # cost in lost soy profit
+cellStats(s1*areakm, sum)     # area in km2
+cellStats(s1*forestbirds[[1]], sum) # amount of Cacicus chrysopterus selected (forest bird 1)
+```
+
+But we might also want to compare the previous solution against this one as well. We can do that by simply adding them together, to get the selection frequency. 
+
+```{r, eval = TRUE, echo = TRUE}
+# plot the selection frequency
+plot(s1+s0)
+```
+
+Or, we might want to preserve the knowledge of which cells were selected in p0, in p1, and both - so we can create a new raster. 
+
+```{r, eval = TRUE, echo = TRUE}
+# plot the selections, using the key below
+
+# Key:
+# 0 = not selected
+# 1 = selected in s0 only
+# 2 = selected in s1 only
+# 3 = selected in both
+
+sf <- s0
+sf[s1==1] <- 2
+sf[(s0+s1)==2] <- 3
+
+plot(sf)
+
+```
+
+Great - now we should have all the basics sorted to be able to develop some scenarios to explore the issue of prioritization more deeply. 
