@@ -1,0 +1,32 @@
+# notes from first run May 2018
+
+# prac 1
+
+  Tidied up and streamlined things after this class to reduce the amount of shuffling between programs.
+  
+  Students took a lot longer than I thought, and definitely needed clearer instructions and prompting for the 'by hand' exercise. I added   a few prompts to the instructions.
+  
+  Added an instructor version of the code to prevent having to develop this (and consequent shuffling between windows) in the class.
+  
+  They only managed to get through Exercise 1. So I allocated Exercise 2 as homework, as well as looking at the scenarios.
+  
+  As this was after a PVA class, there was a question about population viability. This can be addressed through proper targeet setting,     but also care regarding the assumption that what is reserved will be adequate for the species. IE attention on the actions. 
+  
+# prac 2
+
+  Students reported that exercise 2 instructions were clear and everything went fine for most people. Most had already prepared some code   for their scenarios / run it even before getting to class. 
+  
+  One asked about loops. These are easy, for example for the targets:
+    
+    targets <- seq(0.1,1.0, by=0.1)
+    stackofresults <- stack()
+    for (i in targets){
+     p1 <- p0 %>% add_relative_targets(i)
+     stackofresults <- addLayer(stackofresults, solve(p1))
+    }
+    plot(stackofresults)
+    costsofresults <- cellStats(stackofresults*soyprofit, sum) 
+    
+   Most students clearly got it - including a really great description of the BLM. One issue was some wanting to plot overlaps between      rasters and got it a little wrong, so clearer instructions on that might be useful (it is in the exercise 2 already but i forgot to direct them to that). 
+   
+   One question about the relatively linear cost vs targets. This is apparently valid here, particularly around the 17% target level: we are using a relatively monotonous ecoregion that is still largely forested. This  is because many of the species have reasonaly wide and overlapping (*potential*) distributions. So there is a lot of 'wiggle room' for the solutions. We had missied the scenario for the portfolios which could have shown this.
