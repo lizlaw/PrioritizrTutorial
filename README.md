@@ -1,4 +1,7 @@
 # PrioritizrTutorial
+
+### Note this repository currently has no designated licence - and therefore is NOT authorised for copy/use/etc. please email me (workingconservation@gmail.com) if you would like to use it.
+
 Intro to systematic conservation planning using prioritizr - 2x1.5hrs
 
 _Readme
