@@ -1,4 +1,4 @@
-# notes from first run May 2018
+# notes from first run May 2018 - 2nd year class in computer lab - code pre-tested to ensure it ran ok
 
 # prac 1
 
@@ -30,3 +30,17 @@
    Most students clearly got it - including a really great description of the BLM. One issue was some wanting to plot overlaps between      rasters and got it a little wrong, so clearer instructions on that might be useful (it is in the exercise 2 already but i forgot to direct them to that). 
    
    One question about the relatively linear cost vs targets. This is apparently valid here, particularly around the 17% target level: we are using a relatively monotonous ecoregion that is still largely forested. This  is because many of the species have reasonaly wide and overlapping (*potential*) distributions. So there is a lot of 'wiggle room' for the solutions. We had missied the scenario for the portfolios which could have shown this.
+
+# notes from second run June 2018 Lund - to phd+ with own laptops
+
+  I'd sent instructions on that they should come with prioritizr and other packages installed and ensure they can load ok. most people had done this, some minor issues that were solved during the class ok. 
+  
+  Timing: 
+  start 9.10am
+  finished the xlsx exercise by 9.30am (i think had ~15 mins on the exercise).
+  Started exercise 1 at 9.45
+  after this had a 15 min break
+  started exercise 2 at 10.45
+  started scenarios around 11.15 - but then stopped without fully doing these. more just discussed until 11.45. then finished. 
+  
+  versions: there is a difference (found in exercise 2) between prior version and the current version of Prioritizr. no massive. but small differences in the cells selected and the achievement/cost. may just need to update the instructions with the new version.
