@@ -146,7 +146,8 @@ If this gave an error, you might want to check your file path, where you tell R 
 # file we are trying to access:
 paste0(wdr,'simple_cost.tif')
 
-# is this exactly where the data is and what it is called? If not, you might want to fix your wdr (or make sure folder is unzipped)
+# is this exactly where the data is and what it is called? 
+# If not, you might want to fix your wdr (or make sure folder is unzipped)
 
 ```
 
@@ -254,7 +255,8 @@ We can also bring up important information later, by calling the attributes of t
 # the objective value attribute. Note this is not always equal to the 'cost', although here it is.
 s@objective
 
-# the status of the optimization (currently a bug here, sorry, it should read 'OPTIMAL', we can read this in the output that the progress log gives)
+# the status of the optimization (currently a bug here, sorry, it should read 'OPTIMAL',
+# we can read this in the output that the progress log gives)
 s@status
 
 # number of cells selected (we sum all the cells in the solution raster)
