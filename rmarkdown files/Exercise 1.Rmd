@@ -2,7 +2,7 @@
 title: "Systematic Conservation Prioritization: Exercise 1"
 subtitle: Prioritizr demonstration - North Argentinian Dry Chaco example
 author: Liz Law workingconservation@gmail.com
-date: Humboldt Universit‰t Modul Conservation Biogeography - summer term 2018
+date: Humboldt Universit√§t - 2018
 output: html_document
 
 ---
@@ -21,13 +21,19 @@ This exercise aims to give you:
 ## About R
 R is open-source software that is useful for all sorts of analyses. There is a little hurdle learning the language initially, but this is well worth it, as most of the developing analysis methods are often available in R, and this makes it particularly useful for doing interdisciplinary work, or when you need to program in long analyses (so you can repeat them easily later). It includes many contributed 'packages' for different statistical methods, GIS, and now, systematic conservation planning as well. 
 
+If you are an absolute beginner, I highly recommend at least becomming familiar with the basics of R as an 'object oriented' programming language BEFORE this workshop. You might find [these](http://blog.revolutionanalytics.com/2013/08/google-video-r-tutorials.html) video tutorials ok if you want to go through these basics quickly (as in the dude speaks really fast), or the [datacamp](https://www.datacamp.com/courses/free-introduction-to-r?tap_a=5644-dce66f&tap_s=14201-e863d5) introduction course if you prefer a more gentle, interactive learning environment. This will help you focus on they systematic prioritization side of things (i.e. why we are here) rather than struggling with R itself.
+
+For those of you more familiar with R, you will note that we do things really simply here. This is to keep the code as simple as possible, in order to focus more on what is going on - i.e. the systematic conservation prioritization. 
+
 We will use R through 'RStudio'. This is a simple interface that includes a helpful script editor, a look to the console (where scripts are run), and quick access to the environment (what objects are current), plots, packages, and help files. 
 
 Some resources on RStudio and using R for spatial data are available here:
 
 ### R
-  - [R Homepage](https://www.r-project.org/)
-  - [Quick-R](https://www.statmethods.net/)
+  - [R Homepage](https://www.r-project.org/) is a great source of information, posiibly is the difinitive guide for all things R. 
+  - [Quick-R](https://www.statmethods.net/) is a somewhat friendlier online guide. A nice place for absolute beginners might be their [tutorials](https://www.statmethods.net/r-tutorial/index.html)
+  - [Cheat sheets](https://www.rstudio.com/resources/cheatsheets/) are nice summaries of different commands for different tasks, great if you just need reminders of how to do things. 
+  - sorry these resources are all in English. R does have some [contributed documentation in other languages](https://cran.r-project.org/other-docs.html#nenglish), and I'm geuessing if do a google search in your prefered language you might turn up more help. 
   
 ### RStudio
   - [download](https://www.rstudio.com/products/rstudio/download/)
@@ -37,8 +43,7 @@ Some resources on RStudio and using R for spatial data are available here:
   - [rspatial](http://www.rspatial.org/ )
   - [spatial-classes](https://geocompr.robinlovelace.net/spatial-class.html)
 
-
-So first of all, open RStudio, and then open a new script to work from (the little page with a plus symbol in top left corner). 
+So first of all, open RStudio, and then open a new script to work from (the little page with a plus symbol in top left corner). Save this script by clicking on the save icon (upper left) which will prompt you to enter a name. You will want to specify it with a .r filename. You can also open these files with any regulat text editor, but this will ensure it opens with helpful R formatting on compatible software (e.g. R, RStudio, notepad++). 
 
 We'll copy the required code from this document into this new script, **then highlight the required section, and click the 'Run' button in the top right of the script editor**. This will send the highlighted section to the R Console, where it will be computed. 
 
@@ -53,17 +58,32 @@ R is an object oriented language. Typically this means it comes in the form of:
 ```
 Object names can't have spaces or start with numbers. But otherwise, R is pretty flexible with spaces and tabs through the code (it typically just ignores them). Any code prefaced with a # symbol denotes a comment, and is not run. 
 
-We can use R to do basic math, for example add 3 to each of the elements in our object:
+We can use R to do basic math, using simple operators, for example add 3 to each of the elements in our object, or multiply each by three:
 ```{r,eval=FALSE,echo = TRUE}
 #  add 3 to each element of numbers1to5, assign to 'newnumbers' 
     newnumbers <- numbers1to5 + 3
     newnumbers
+#  times each of our numbers1to5 by three    
+    morenumbers <- numbers1to5 * 3
+    morenumbers
+```
+We can use R to build and subset data:
+```{r,eval=FALSE,echo = TRUE}
+#  bind together each of our objects
+newdata <- cbind(numbers1to5, newnumbers, morenumbers)
+newdata
+
+# select by row, or by column, or by cell, or particular cells
+newdata[3,]
+newdata[,3]
+newdata[3]
+newdata[3,3]
 ```
 
 Many functions are programmed in:
 ```{r,eval=FALSE,echo = TRUE}
 # plot numbers1to5 agains newnumbers
-# what format to i use? check the help file:
+# what format do I use? check the help file:
     ?plot
 # plot(x, y, ...)
     plot(numbers1to5, newnumbers)
@@ -71,12 +91,10 @@ Many functions are programmed in:
 
 ...for getting help, sometimes a simple google search prefaced by 'r cran' will be more helpful.  
 
- 
 
 ## Install and load packages
-OK, let's get started on something more complex!
-First, we will need to install and load a few packages. We need these to make R understand what rasters are, to do spatial analyses, and for the optimization.
-
+OK, let's get started on something more complex.
+First, we will need to install and load a few packages. We need these to make R understand what rasters are, to do spatial analyses, and for the optimization. Our optimization package, [prioritizr](https://prioritizr.net/index.html), sets up the problem, then interfaces with other packages that specialize in solving the problems. We will use `lpsymphony`, which is loaded from a different source. Another option is `Rsymphony`, but it is not available across all operative platforms. My preferred option, `gurobi`, is commercial software, which needs licences (free for academic use) and has a few additional steps to set things up, well worth it if you are doing complex/large problems. 
 
 ```{r,eval=TRUE,echo = TRUE, message=FALSE, warning=FALSE, results='hide'}
 # specify what packages we want
@@ -100,8 +118,11 @@ library(lpsymphony)
 ```
 
 ## Specify your working directory
-The required data are in the NADC_prioritizr folder in the course materials. 
-Download this into a folder you have access to, unzip it, and then tell R where it is by specifying an object, named 'wdr' as the file name for this folder, formatted like the example below (in quotes, and with forward slashes):
+Note: until I receive permission to openly share it, I can only provide the data privately. Please also be considerate, and do not publish the data. I will update these materials when they are openly available. There are also data available through the package `prioritizrdata` or can be simulated through [prioritizr](https://prioritizr.net/index.html).
+
+The required data are in the NADC_prioritizr folder in the course materials. Download this into a folder you have access to, and unzip it. R won't be able to find it properly if it is not unzipped.
+
+Then tell R where the data are by specifying an object, our working directory, which we will call 'wdr'. We will allocate the path to this folder to this object. You will need to find this for your own set up, and it must be formatted like the example below (i.e., in quotes, and with forward slashes):
 
 ```{r,eval=TRUE,echo=TRUE}
 # specify your working directory - you will need to change this code to your folder path!!!
@@ -110,7 +131,7 @@ wdr <-'T:/el/NADC_prioritizr/inputdata/'
 
 ## Load and explore the data
 We will now pull the data into R. 
-The data include the cost layer, which we call 'simple_cost', and the feature data, which we call 'simple_feat'.
+The data include the cost layer, which we call 'simple_cost.r', and the feature data, which we call 'simple_feat.s'.
 The cost data is a one-layer raster, so we load it by calling *raster*. 
 The feature data is a 6-layer raster, which we load as a *stack*.
 
@@ -125,11 +146,12 @@ If this gave an error, you might want to check your file path, where you tell R 
 # file we are trying to access:
 paste0(wdr,'simple_cost.tif')
 
-# is this where the data is and what it is called? If not, you might want to fix your wdr (or make sure folder is unzipped)
+# is this exactly where the data is and what it is called? If not, you might want to fix your wdr (or make sure folder is unzipped)
 
 ```
 
-Once the data are successfully loaded, let's have a look at this data.  
+Once the data are successfully loaded, it will appear in the 'environment' tab (top right in R Studio). 
+Let's have a look at this data.  
 
 First the cost data:
 
@@ -139,27 +161,32 @@ print(simple_cost)
 plot(simple_cost, main='Cost')
 ```
 
-This tells us that the data represents a raster, with the features as above. The resolution is in the metric of the coordinate system, in this case meters - so in this case, 50km. You also get the minimum and maximum values of the data. 
+This output tells us that the data represents a raster, with the features as above. The resolution is in the metric of the coordinate system, in this case meters - so in this case, 50km. You also get the minimum and maximum values of the data. 
 
-Plotting the data used just the simple base package. Many more advanced plotting methods are possible, but to just check the data have been imported correctly, often this base plot is fine. 
+Here we just use the base package for plotting the data. Many more advanced plotting methods are possible, But we will stick to the base plot package for simplicity, and it is perfectly fine for ensuring the data have been imported correctly. 
 
-The cost data represents the predicted value of soy agriculture over the study area. If we can help it, we want to avoid conservation conflict with agriculture. So that means avoiding areas of high soy profit. In our case, we are assuming high profit = high cost. 
+The cost data represents the predicted value of soy agriculture over the study area. If we can help it, we want to avoid conservation conflict with agriculture. One way this can be framed is to avoid areas of high soy profit. Here, we are assuming high profit = high cost. 
 
 Now the feature data:
 
 ```{r,eval=TRUE,echo=TRUE}
 # explore feature data
 print(simple_feat)
+
+# plot feature 1 only by subsetting
+plot(simple_feat[[1]], main='Feature 1')
+
+# or plot them all together
 plot(simple_feat, main='Features')
 ```
 
-We can compare the metadata for these features with the cost data above. They should be largely the same. In this case the base plot is pretty clever, and plots all 6 panels, giving them a name. Unfortunately the .tif file format doesn't save the names of the layers, but it is good for transferring files across different software. In this case the features represent two forest birds, two other birds, and two mammals found in the study area. For this purpose, their identities don't matter, so we'll leave them with their default names. 
+We can compare the metadata for these features with the cost data above. They should be largely the same (i.e. same resolution, extent). In this case the base plot is pretty clever, and plots all 6 panels, giving them a name. Unfortunately the .tif file format doesn't save the names of the layers, but it is good for transferring files across different software. In this case the features represent two forest birds, two other birds, and two mammals found in the study area. For this purpose, their identities don't matter, so we'll leave them with their default names. 
 
 We can save plots to file manually - e.g. by clicking on the 'Export' botton in the plot window, or by clicking on 'zoom' in the plot window, and then right click and copy, and paste into a word document. More specific ways to save plots are of course available, but this one is fine for our purposes. 
 
 
 ## PrioritizR
-Prioritizr is a package in R, recently developed (and still in active development) for Systematic Conservation Prioritization. 
+[Prioritizr](https://prioritizr.net/index.html) is a package in R, recently developed (and still in active development) for Systematic Conservation Prioritization. 
 
 Hanson JO, Schuster R, Morrell N, Strimas-Mackey M, Watts ME, Arcese P, Bennett J, Possingham HP (2018). prioritizr: Systematic Conservation Prioritization in R. R package version 4.0.0.1. Available at https://github.com/prioritizr/prioritizr.
 
@@ -167,25 +194,35 @@ Hanson JO, Schuster R, Morrell N, Strimas-Mackey M, Watts ME, Arcese P, Bennett 
 library(prioritizr)
 ```
 
+Note, is is still possible the different versions of prioritizr and the solvers that we are using might result in slightly different solutions. This is due to different algorithms used during the solving. Therefore it is always good practice to note the versions that you are using. These instructions were created using:
+
+```{r, eval=TRUE, echo=TRUE}
+# version numbers of (some of) the packages that we are using:
+citation()
+citation(lpsymphony)
+citation(prioritizr)
+```
+
 ### Some useful references for Prioritizr:
+  - [home page](https://prioritizr.net/index.html)
   - [quick start](https://cran.r-project.org/web/packages/prioritizr/vignettes/quick_start.html)  
   - [basics](https://cran.r-project.org/web/packages/prioritizr/vignettes/prioritizr_basics.html)  
-  - [saltspring example (raster-based input)](https://prioritizr.github.io/prioritizrdata/articles/saltspring.html)   
-  - [refrence guide](https://prioritizr.github.io/prioritizr/reference/)
+  - [saltspring example (raster-based input)](https://prioritizr.net/articles/saltspring.html)   
+  - [refrence guide](https://prioritizr.net/reference/index.html)
 
 ## Setting up and running the basic problem
-Here we set up the basic problem, which we call 'p1'.
+Here we set up the basic problem, which we call `p1`.
 
-The first item in the `problem()` call is the minimization/maximization objective data (here the cost, which we want to minimize). This data needs to also include the spatial information about the planning units, which, in a raster format, are the raster cells. (Other options are vector data, you can see the online documentation for examples of them) 
+The first item in the `problem()` call is the minimization/maximization objective data (here the cost, which we want to minimize). This data needs to also include the spatial information about the planning units, which, in a raster format, are the raster cells. (Other options are vector data, you can see the [online documentation](https://prioritizr.net/index.html) for examples of them) 
 
 The second item in the `problem()` call is a *stack* of feature data. In our case, it is the stack of species scores. 
 
-The next lines are attached to the problem with `%>%` and specify other aspects of the problem:
+The next lines are 'piped' (attached) to the problem with `%>%` and specify other aspects of the problem:
 
   - That we have the objective to minimize the cost, while achieving a set of feature representation.
-  - That we want the targets to be 17% of the total possible for each feature.
+  - That we want the targets to be 17% of the total possible for each of the included features.
   - That we want binary decisions (i.e. cells are selected or not, they can't be partial).
-  - And that we want to use the lpsymphony package for solving the problem.
+  - And that we want to use the lpsymphony package for solving the problem. *if you are not using lpsymphony as a solver, you will need to specify which one you are using here instead*
   
 And then we solve the problem, allocating the solution to the object 's'.
 
@@ -211,10 +248,10 @@ print(s)
 plot(s, main='Solution p1')
 ```
 
-We can also bring up important information later, by calling the attributes of the solution 's', e.g. the objective function (which here is equal to the cost), and also calculate e.g. the number of cells selected, the amount of each feature achieved
+We can also bring up important information later, by calling the attributes of the solution 's', e.g. the objective function (which here is equal to the cost), and also calculate e.g. the number of cells selected, the amount of each feature achieved. We calculate the through using the `cellStats` function. 
 
 ```{r,eval=TRUE,echo=TRUE}
-# the objective value attribute
+# the objective value attribute. Note this is not always equal to the 'cost', although here it is.
 s@objective
 
 # the status of the optimization (currently a bug here, sorry, it should read 'OPTIMAL', we can read this in the output that the progress log gives)
@@ -231,10 +268,10 @@ cellStats(s*simple_feat[[1]], sum)
 ```
 
 
-We can also plot the solution, to see which cells were selected:
+We can also plot the solution, along with their planning unit identification numbers (puid) to see which cells were selected:
 
 ```{r,eval=TRUE,echo=TRUE}
-# generate a list of pu id to also plot
+# generate a list of puid to also plot, and their locations
 puid <- (1:ncell(simple_cost))[!is.na(values(simple_cost))]
 xy <- xyFromCell(simple_cost, puid)
 
@@ -245,5 +282,7 @@ text(xy[,1], xy[,2], puid, cex=0.5)
 ```  
 
 *How close did you get when prioritizing by hand?*
+
+Don't forget to save your file if you want!
 
 Next, in Exercise 2, we will be dealing with a more realistic example, and adding in more complexities...
