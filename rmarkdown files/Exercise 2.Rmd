@@ -2,7 +2,7 @@
 title: "Systematic Conservation Prioritization: Exercise 2"
 subtitle: Prioritizr demonstration - North Argentinian Dry Chaco example
 author: Liz Law workingconservation@gmail.com
-date: Humboldt Universit‰t Modul Conservation Biogeography - summer term 2018
+date: Humboldt Universit√§t - 2018
 output: html_document
 
 ---
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # A more realistic example
 
-The last problem we dealt with was quite small, less than 100 cells, and only 6 species. Most conservation problems we will encounter in the real world are much more complex, involving more species, larger areas, issues such as needing to include some areas (such as existing protected areas) and exclude others (that are not available for conservation), as well as considering the spatial arrangement (connectivity and clustering) of the reserve network. 
+The last problem we dealt with was quite small, less than 100 cells, and only 6 species. Most conservation problems we will encounter in the real world are much more complex, involving more species and other conservation features, larger areas, issues such as needing to include some areas (such as existing protected areas) and exclude others (that are not available for conservation), as well as considering the spatial arrangement (connectivity and clustering) of the reserve network. 
 
 We will now have a look at the NADC data on a 10km raster resolution, including additional data, and have a go at developing a more complex problem.
 
@@ -42,7 +42,7 @@ sapply(packList, require, character.only=T)
                    #  a possible option
 require(lpsymphony)
 
-# specify working directory - change this to your own!
+# specify working directory - dont forget to change this to your own!
 wdr <-'T:/el/NADC_prioritizr/inputdata/'
 ```
 ## Loading the data
@@ -77,7 +77,7 @@ print(smallholderdensity); plot(smallholderdensity)
 
 What are these data exactly? That's a great question, and one you should always ask! Check the descriptions in the Systematic Conservation Prioritization.pdf
 
-Now, let's find out the names of the species we are dealing with, and allocate them to the data. It's always useful to know what species you are dealing with - for example whether they are threatened, endemic or particular to a type of habitat (e.g. wetlands), native, invasive, a keystone ecological species, of cultural significance or economic importance. We might want to treat these different types of species differently in an analysis!
+Now, let's find out the names of the species we are dealing with, and allocate them to the data. It's always useful to know what species you are dealing with - for example whether they are threatened, endemic or particular to a type of habitat (e.g. wetlands), native, invasive, a keystone ecological species, of cultural significance or economic importance. We might want to treat these different types of species differently in an analysis.
 
 ```{r, eval = TRUE, echo = TRUE}
 # load species names and examine data
@@ -99,7 +99,7 @@ Second, we find out how much of each species there could be across the study are
 Third, we find out how much of each species is represented within the current reserve network. 
 
 ```{r, eval = TRUE, echo = TRUE}
-# Gap analysis
+## Gap analysis
 # how much area already in reserves?
 # protectedareas>50 gives us a binary raster (true/false) that we need to times by the planning unit area
 reserved <- protectedareas>=50
@@ -123,7 +123,7 @@ speciesprotected <- as.data.frame(cbind(
                            speciestotals, 
                            speciesprotected, 
                            percentprotected = round(speciesprotected/speciestotals*100, 2)))
-rownames(speciesprotected) <- NULL
+rownames(speciesprotected) <- NULL # this just cleans up our dataframe
 print(speciesprotected)
 
 ```
@@ -141,9 +141,9 @@ For example, we might want to lock in cells that already have existing protected
 *Why might we do this? What are the implications of this?* 
 
 We might also want to lock out cells that are already intensive agriculture.  
-*Why might we do this? What are the implications of this?*
+*Why might this be useful? What are the implications of this?*
 
-Note, one of the things we need to be careful with here is feasibility - we can't tell prioritizr to lock in and lock out the same cells. This just does not make sense. In this case we are lucky: the lock in and lock out cells that we use are not overlapping. Further, if they do overlap, Prioritizr knows this and will give an informative error message.  
+Note, one of the things we need to be careful with here is feasibility - we can't tell prioritizr to lock in and lock out the same cells. This is infeasible (i.e. impossible to do). In this case we are lucky: the lock in and lock out cells that we use are not overlapping. If they did overlap, fortunately Prioritizr will detect this and will give an informative error message.  
 
 ```{r, eval = TRUE, echo = TRUE}
 # set up the problem
@@ -160,8 +160,7 @@ s0 <- solve(p0)
 
 ```{r, eval = TRUE, echo = TRUE}
 # some post-processing options:
-plot(s0, main = paste("p0 cost =", s0@objective), 
-     breaks = c(0, 0.5, 1),  col = c("grey70", "#0A5640"))
+plot(s0, main = "p0")
 
 cellStats(s0*soyprofit, sum)    # cost in lost soy profit
 cellStats(s0*areakm, sum)     # selected area 
@@ -170,15 +169,17 @@ cellStats(s0*forestbirds[[1]], sum) # amount of Cacicus chrysopterus selected (f
 
 ### Adding connectivity
 
-So far we have been dealing with linear problems, in which the selection of one cell does not influence the benefit values of another. But there are many reasons why we might want certain spatial arrangements in our protected area networks. You might remember the SLOSS debate from the last lecture, for instance, which deals mainly with species requirements. But also, fewer, larger reserves can make it easier/cheaper to manage (economies of scale), and for the general public to know where is protected and where not.
+So far we have been dealing with linear problems, in which the selection of one cell does not influence the benefit values of another. But there are many reasons why we might want certain spatial arrangements in our protected area networks. You might remember the SLOSS debate from the last lecture, for instance, which deals mainly with species requirements. But also, fewer, larger reserves can make it easier/cheaper to manage (i.e. there are 'economies of scale'), and clearer for the general public to know where is protected and where not.
 
-Including connectivity into conservation problems makes them non-linear, because the selection of one cell does influence the benefit values of another. However, one of the major advancements programmed into Prioritizr is the linearization of these non-linear problems. First described (for conservation problems) in Beyer et al (2016), this mathematical trick allows us to solve these problems using linear/integer programming methods. 
+Including connectivity into conservation problems makes them non-linear, because the selection of one cell can influence the benefit values of another. However, one of the major advancements programmed into Prioritizr is the linearization of these non-linear problems. First described (for conservation problems) in [Beyer et al (2016)](https://doi.org/10.1016/j.ecolmodel.2016.02.005), this mathematical trick allows us to solve these problems using linear/integer programming methods. 
 
-In Prioritizr there are several different methods to include connectivity concerns. Some work by adding 'constraints' such as requiring selected cells to have a certain number of selected neighbours. Other options work via adding a penalty to the cost / minimization objective. We will use one version of the latter: the `add_boundary_penalties` option.
+    Beyer, H. L., Dujardin, Y., Watts, M. E., & Possingham, H. P. (2016). Solving conservation planning problems with integer linear programming. Ecological Modelling, 328, 14-22.
 
-This option is the same as the one implemented in Marxan. For every exposed boundary of a solution, it adds a penalty, relative to the length of this exposed boundary. 
+In Prioritizr there are several different methods to include connectivity concerns. Some work by adding 'constraints' such as requiring selected cells to have a certain number of selected neighbours. Other options work via adding a penalty to the cost / minimization objective. We will use one version of the latter: the `add_boundary_penalties()` option.
 
-To implement this, we will first create the boundary matrix. This will create a *sparse matrix* of data which represents the boundary lengths between each cell pair. If we don't do this ourselves, Prioritizr will create one automatically from the cost/pu data, but this way gives us a little more control, and if we are doing several different analyses using the same data it saves us from having to re-make this data every time. 
+This option is the same as the one implemented in one of the other conservation planning software, Marxan. For every exposed boundary of a solution, it adds a penalty, relative to the length of this exposed boundary. 
+
+To implement this, we will first create the boundary matrix, using `boundary_matrix()`. This will create a *sparse matrix* of data which represents the boundary lengths between each cell pair. If we don't do this ourselves, Prioritizr will create one automatically from the cost/pu data, but this way gives us a little more control, and if we are doing several different analyses using the same data it saves us from having to re-make this data every time. A *sparse matrix* is just a way of efficiently representing data with a lot of zeros.
 
 But first, here is an example of how this boundary length matrix works:
 
@@ -213,7 +214,7 @@ blm <- boundary_matrix(soyprofit)
 
 # add this into the problem from before
 p1 <- p0 %>% 
-      add_boundary_penalties(penalty = 0.05, edge_factor = 0.5, boundary_data = blm)
+      add_boundary_penalties(penalty = 0.05, edge_factor = 0.5, data = blm)
 
 s1 <- solve(p1)
 ```
@@ -221,22 +222,14 @@ s1 <- solve(p1)
 Some post processing options, the same as last time:
 
 ```{r, eval = TRUE, echo = TRUE}
-plot(s1, main = paste("p1 cost =", s1@objective), 
-     breaks = c(0, 0.5, 1),  col = c("grey70", "#0A5640"))
+plot(s1, main = "p1 blm = 0.05")
 
 cellStats(s1*soyprofit, sum)    # cost in lost soy profit
 cellStats(s1*areakm, sum)     # area in km2
 cellStats(s1*forestbirds[[1]], sum) # amount of Cacicus chrysopterus selected (forest bird 1)
 ```
 
-But we might also want to compare the previous solution against this one as well. We can do that by simply adding them together, to get the selection frequency. 
-
-```{r, eval = TRUE, echo = TRUE}
-# plot the selection frequency
-plot(s1+s0)
-```
-
-Or, we might want to preserve the knowledge of which cells were selected in p0, in p1, and both - so we can create a new raster. 
+But we might also want to compare the previous solution against this one as well. We can do that by though a little addition trick.  
 
 ```{r, eval = TRUE, echo = TRUE}
 # plot the selections, using the key below
@@ -247,12 +240,11 @@ Or, we might want to preserve the knowledge of which cells were selected in p0, 
 # 2 = selected in s1 only
 # 3 = selected in both
 
-sf <- s0
-sf[s1==1] <- 2
-sf[(s0+s1)==2] <- 3
+sf <- s0 + (s1 * 2)
 
 plot(sf)
 
 ```
+Note, when doing raster math, R will automatically undersand so long as you specify the raster first (i.e s1\*2 not 2\*s1).
 
-Great - now we should have all the basics sorted to be able to develop some scenarios to explore the issue of prioritization more deeply. 
+Congratulations - now we should have all the basics sorted to be able to develop some scenarios to explore the issue of prioritization more deeply. 
