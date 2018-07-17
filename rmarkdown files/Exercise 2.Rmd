@@ -247,4 +247,12 @@ plot(sf)
 ```
 Note, when doing raster math, R will automatically undersand so long as you specify the raster first (i.e s1\*2 not 2\*s1).
 
+The above code allows us to visually see the overlap - but we might also want to calculate the areas themselves:
+
+```{r, eval = TRUE, echo = TRUE}
+# calculate the areas identified for conservation in the category 1 above
+cellStats(sf[sf==1]*areakm, sum)
+
+```
+
 Congratulations - now we should have all the basics sorted to be able to develop some scenarios to explore the issue of prioritization more deeply. 
