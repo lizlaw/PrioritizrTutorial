@@ -34,13 +34,16 @@ for(i in 1:length(packList)){
   }
 }
 # load packages
-sapply(packList, require, character.only=T)
+sapply(packList, library, character.only=T)
 
 # load lpsymphony (reinstall if you need to)
+if(!is.element(noquote('lpsymphony'),installed.packages()[,1])){
  source("https://bioconductor.org/biocLite.R") 
  biocLite("lpsymphony") # on one computer it asked for updating some other packages --> "n" is
                    #  a possible option
-require(lpsymphony)
+}
+
+library(lpsymphony)
 
 # specify working directory - dont forget to change this to your own!
 wdr <-'T:/el/NADC_prioritizr/inputdata/'
@@ -245,13 +248,14 @@ sf <- s0 + (s1 * 2)
 plot(sf)
 
 ```
+
 Note, when doing raster math, R will automatically undersand so long as you specify the raster first (i.e s1\*2 not 2\*s1).
 
 The above code allows us to visually see the overlap - but we might also want to calculate the areas themselves:
 
 ```{r, eval = TRUE, echo = TRUE}
 # calculate the areas identified for conservation in the category 1 above
-cellStats(sf[sf==1]*areakm, sum)
+cellStats((sf==1)*areakm, sum)
 
 ```
 

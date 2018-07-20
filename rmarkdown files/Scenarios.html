@@ -121,23 +121,22 @@ $(document).ready(function () {
 <h1 class="title toc-ignore">Systematic Conservation Prioritization: Scenarios</h1>
 <h3 class="subtitle"><em>Prioritizr demonstration - North Argentinian Dry Chaco example</em></h3>
 <h4 class="author"><em>Liz Law <a href="mailto:workingconservation@gmail.com">workingconservation@gmail.com</a></em></h4>
-<h4 class="date"><em>Humboldt Universität Modul Conservation Biogeography - summer term 2018</em></h4>
+<h4 class="date"><em>Humboldt Universität - 2018</em></h4>
 
 </div>
 
 
 <div id="scenarios---descriptions-and-example-code" class="section level1">
 <h1>Scenarios - descriptions and example code</h1>
-<p>Congratulations! You’ve just done some pretty advanced analyses. Simple, eh? But before we get too carried away, we probably should explore this issue further, and analyse the sensitivity of our results to different problem formulations.</p>
+<p>Scenarios are one way to analyse the sensitivity of our results to different problem formulations, so we can get a better understanding of the system, our options, and what is driving the solutions.</p>
 <p>For example, decision makers might want to ask us:<br />
 - What happens if we change the targets?<br />
-- What if we want to focus on different species groups?<br />
-- What about different levels of connectivity?<br />
+- What if we want to focus on different species groups? How well do different groups proxy for others? - What about different levels of connectivity?<br />
 - What if we want different lock in - lock out scenarios?<br />
-- What if we want a range of different solutions to explore?</p>
-<p>And what is the impact on the area selected, and the corresponding costs, etc.?</p>
-<p>These can be developed with the scenarios below. We’ll split into groups for the different scenarios, and if there are more than 3-4 people per group, into sub-groups of 2-3 people.</p>
-<p>However, first we need to decide what we are comparing the solutions against.</p>
+- What if we want a range of different solutions to discuss and explore?</p>
+<p>And what is the impact of these variations on the amount and type of areas selected, and the corresponding costs, etc.?</p>
+<p>These can be developed with the scenarios below.</p>
+<p>However, first we need to decide what we are comparing the scenario solutions against.</p>
 <div id="the-reference-point" class="section level3">
 <h3>The reference point</h3>
 <p>This choice of ‘reference point’ is not trivial. It will frame our results, and color our opinion of what is good or bad. Here, we will set the ‘reference point’ as a reserve system that efficiently protects 17% of all the species (i.e. 17% of the maximum total value possible for each species), and locks in existing protected areas.</p>
@@ -155,24 +154,22 @@ s0 &lt;- solve(p0)</code></pre>
 </div>
 <div id="scenarios" class="section level2">
 <h2>Scenarios</h2>
-<p>Now that we have our baseline, we can develop the different scenarios. Remember to allocate them to new objects, else they will write over previous problems/solutions.</p>
+<p>Now that we have our baseline, we can develop the different scenarios. We will do this in small groups, one for each scenario. Remember to allocate the problems and solutions to new objects, else they will write over previous problems/solutions.</p>
 <p>We’d like you to prepare 5 slides on your scenario to present to the class in a 5 minute presentation. These 5 slides should show:<br />
 - Introduction: what your scenario is, and why it is useful<br />
 - Methods: how you implemented your analysis<br />
 - Results: what these showed<br />
 - Discussion: what this might mean for conservation planning in the region or more generally?</p>
-<p><em>Did any sub-groups do things substantially differently, and get different results? Why?</em></p>
-<p>We’ll first discuss within the sub-groups that had the same scenario, and then present one of these to the whole class.</p>
-<p>Note 1: You will need to write your own code for these scenarios. We should be able to do this now, by modifying the code from the examples. But if you have questions, please ask! We want this exercise to be about conservation prioritization, and not learning how to use R.</p>
+<p>Note 1: You will need to write your own code for these scenarios. We should be able to do this now, by modifying the code from the examples, and using the hints from below. But if you have questions, please ask! We want this exercise to be about conservation prioritization, and not learning how to use R.</p>
 <p>Note 2: We won’t expect your maps to be fancy, but we would like them to show what you need to show. Most of the code you need to do these analyses can be derived from the examples in Exercise_2.html, or is given in the tips below. Feel free to develop any graphs here in R, or by copying the results over to Excel.</p>
-<p>Note 3: You might want to learn a little more about the functions available in Prioritizr. The full documentation is available in the <a href="https://prioritizr.github.io/prioritizr/reference/">reference</a>. Or, remember you can always access the help file for a function by typing in the console a ? or ?? before the function, such as <code>?help</code> or <code>?plot</code>.</p>
+<p>Note 3: You might want to learn a little more about the functions available in Prioritizr. The full documentation is available in the <a href="https://prioritizr.net/reference/index.html">reference</a>. Or, remember you can always access the help file for a function by typing in the console a ? or ?? before the function, such as <code>?problem</code>.</p>
 </div>
 <div id="scenario-1-target-vs-cost" class="section level2">
 <h2>Scenario 1: Target vs cost</h2>
-<p>We’ve been using a relative target of 17% to (roughly) align with global conservation targets (specifically, the <a href="https://www.cbd.int/sp/targets/">CBD Aichi Targets</a>, more specifically, an interpretation of Target 11). But how do costs change with different choices for this relative target? If we can get a much larger target, for just a little bit more cost, this could be worth it. Or if we can get a more realistic cost, for just a little bit less target, perhaps this might be more socially or politically feasible.</p>
-<p>To test this, we would like to make a graph that shows different values of relative target on the X axis, and different costs of the resulting solutions on the Y axis.</p>
-<p>We might also like to overlay the solutions to get a ‘selection frequency’ layer, which might help us to know where the really important areas are.</p>
-<p>We can change the relative target by changing the number in the call. For example, we might create ‘p10’ which would achieve 10% of each feature species. The following code will ‘update’ the relative target for our base problem, p0.</p>
+<p>We’ve been using a relative target of 17% to (roughly) align with global conservation targets (specifically, the <a href="https://www.cbd.int/sp/targets/">CBD Aichi Targets</a>, and more specifically, an interpretation of Target 11). But how do costs change with different choices for this relative target? If we can get a much larger target, for just a little bit more cost, this could be worth it. Or if we can get a more realistic cost, for just a little bit less target, perhaps this might be more socially or politically feasible.</p>
+<p>To examine this, we would like to make a graph that shows different values of relative target on the X axis, and different costs of the resulting solutions on the Y axis.</p>
+<p>We might also like to overlay the solutions to get a ‘selection frequency’ layer, which is a super simple way to start to understand where the really important areas are (provided the solutions are largely ‘nested’).</p>
+<p>We can change the relative target by changing the number in the call, and this will update this specification in the problem. For example, we might create ‘p10’ which would achieve 10% of each feature species. The following code will ‘update’ the relative target for our base problem, p0.</p>
 <pre class="r"><code># updating the relative targets
 p10 &lt;- p0 %&gt;% 
   add_relative_targets(0.10) 
@@ -180,6 +177,8 @@ p10 &lt;- p0 %&gt;%
 s10 &lt;- solve(p10)</code></pre>
 <p>Some discussion points:</p>
 <ul>
+<li><em>How does area selected scale with targets?</em></li>
+<li><em>How does cost scale with targets?</em></li>
 <li><em>What might be the ecological or political justification for different targets?</em></li>
 <li><em>What might be the ecological or political consequences of different targets?</em></li>
 <li><em>What might be better targets to apply?</em></li>
@@ -189,18 +188,30 @@ s10 &lt;- solve(p10)</code></pre>
 <h2>Scenario 2: Focus on different species groups</h2>
 <p>So far, we have included all the species we had data for, including forest birds, other birds, and mammals. But what if we are only interested in mammals? How well might a solution based only on mammals protect birds as well? Or vice versa?</p>
 <p>To test this, we might develop solutions for scenarios that only target certain species, or certain species groups, and then examine how well these would represent the other species. We might like to overlay the solutions to see areas of commonality, and areas of difference.</p>
-<p>We can enter a vector of numbers into the relative targets, rather than just a single number. For example, if we only want to include mammals, we might enter a target of 0 for all the bird species, as in the code below. Remember we have 5 forest birds, 5 other birds, and 5 mammals, in order. The following code will ‘update’ the relative target for our base problem, p0.</p>
+<p>To do this, we need to respecify the problem, only includeing mammals in the features:</p>
+<pre class="r"><code># changing the features to mammals only
+p_mammalsonly &lt;- problem(soyprofit, stack(forestbirds, otherbirds, mammals)) %&gt;%
+  add_min_set_objective() %&gt;%
+  add_relative_targets(0.17) %&gt;%
+  add_locked_in_constraints(protectedareas&gt;50) %&gt;%
+  add_binary_decisions() %&gt;%
+  add_lpsymphony_solver(gap=0.1) 
+
+s_mammalsonly &lt;- solve(p_mammalsonly)</code></pre>
+<p>Note, we could also can enter a vector of numbers into the relative targets, rather than just a single number, and thus change our focus this way. For example, if we only want to include mammals, we might enter a target of 0 for all the bird species, as in the code below. Remember we have 5 forest birds, 5 other birds, and 5 mammals, in order. The following code will ‘update’ the relative target for our base problem, p0.</p>
 <p>Note, these targets are specified as threshold targets, i.e. the problem will try and achieve &gt;= the target. So the example below is trying to get at least 0 for the birds, and at least 17% for the mammals.</p>
-<pre class="r"><code># changing the targets to target mammals only
+<pre class="r"><code># alternative formaulation: changing the targets to target mammals only
 p_mammalsonly &lt;- p0 %&gt;% 
   add_relative_targets(c(0,0,0,0,0,
                          0,0,0,0,0,
                          0.17,0.17,0.17,0.17,0.17)) 
 
 s_mammalsonly &lt;- solve(p_mammalsonly)</code></pre>
+<p>Which method is better? It depends on what other scenarios you are doing, and how many species you have. The second method saves you from having to respecify the whole problem each time, but the first is more data efficient.</p>
 <p>Some discussion points:</p>
 <ul>
-<li><em>How well do birds represent mammals, or mammals represent birds, and what does this mean for conservation planning in data poor regions? What species are commonly data rich/poor?</em></li>
+<li><em>How well do birds represent mammals, or mammals represent birds?</em></li>
+<li><em>What does this mean for conservation planning in data poor regions? What species are commonly data rich/poor?</em></li>
 <li><em>How well might conservation plans designed only for threatened species represent other types of species? Hint: what usually defines a ‘threatened’ species?</em></li>
 <li><em>Can species only survive in protected areas? Why should we only consider the contribution of protected areas in our problem? Why might this be misleading?</em></li>
 </ul>
@@ -210,15 +221,17 @@ s_mammalsonly &lt;- solve(p_mammalsonly)</code></pre>
 <p>Connectivity might be ecologically good, but it can also cost more as the cells selected become ‘sub-optimal’ with respect to the basic problem (requiring more cells to achieve targets, or being more costly).</p>
 <p>Therefore we might like to compare the cost of solutions with differing levels of connectivity.</p>
 <p>We might like to explore a range of blm penalties. Below we implement a penalty of 0.05. We might want to explore options of blm penalties in c(0.001, 0.005, 0.01, 0.05, 0.1, 0.5). What do these different solutions look like? What is the trade-off between the blm penalty and cost?</p>
+<p>Note: a reasonable blm penalty depends on your data, including the magnitude and units of the cost and boundary data, and how these and the benefits are distributed. But a useful rule of thumb to start is to find the point where the average cell cost is equal to the sum of the cell’s boundary penalty. If the penalty is set too low, it will not have the magnitude to influence the decision enough to develop the desired level of clumping. If set too high, the solution will be driven more by the configuration rather than the species distributions. This in itself may be ok (the solution will still ‘represent’ all the species), but we may need to be wary if there are cells that are locked in - these will ‘seed’ solutions around themselves. Again, not necessarily a bad thing in some contexts, but not so desirable in others. It will also probably take a lot longer to solve.</p>
 <p>Note: the ‘edge_factor’ modifies the penalty given to the boundary on the edge of the study region. If we want to keep solutions from the edge we might increase this factor. If we want to cluster solutions against the edges we might decrease this number. For now, to keep things simple, keep this factor at 0.5, and use the same blm data that we derived above.</p>
 <pre class="r"><code># adding a boundary penalty
 p_blm1 &lt;- p0 %&gt;% 
   add_boundary_penalties(penalty = 0.05, edge_factor = 0.5, boundary_data = blm)
 
 s_blm1 &lt;- solve(p_blm1)</code></pre>
-<p>Note 2: because this method adds the boundary penalty to the cost, it changes the meaning of the objective function, and the objective value is no longer equal to just the cost itself. This means we need to calculate the cost using the <code>cellStats(s_blm1*soyprofit, sum)</code> command, rather than just looking at the objective attribute via <code>s_blm1@objective</code></p>
+<p>Note: because this method adds the boundary penalty to the cost, it changes the meaning of the objective function, and the objective value is no longer equal to just the cost itself. This means we need to calculate the cost using the <code>cellStats(s_blm1*soyprofit, sum)</code> command, rather than just looking at the objective attribute via <code>s_blm1@objective</code></p>
+<p>Note: when adding connectivity to an existing problem, be sure there is not already a connectivity penalty existing in the problem - otherwise prioritizr will just add the new connectivity penalty, as well as keeping the old one.</p>
 <p>Some discussion points:<br />
-- <em>How many more cells are selected, and at what extra cost, for the different levels of connectivity?</em><br />
+- <em>Why is connectivity useful, and how does the boundary penalties function implement this?</em> - <em>How many more cells are selected, and at what extra cost, for the different levels of connectivity?</em><br />
 - <em>Can you see the impact of locking in protected areas on connectivity? Might it influence which cells are selected? How might we go about changing this?</em><br />
 - <em>How might this simple method of clustering cells not really be what we want, in ecological terms? What are the other options in Prioritizr that could be better?</em></p>
 </div>
@@ -226,7 +239,7 @@ s_blm1 &lt;- solve(p_blm1)</code></pre>
 <h2>Scenario 4: Lock in - Lock out options</h2>
 <p>There are certain areas that really should be part of the solutions, such as existing protected areas. These are areas that might be protected for different reasons (e.g. cultural significance). They might also not ‘cost’ anything, because they are already protected, and not available for other uses.</p>
 <p>However, remember the ‘high and far bias’? So these existing protected areas may be really inefficient, and we could get a more efficient reserve system by completely re-thinking things.</p>
-<p>Similarly, there are reasons why some areas should really not be included in the reserve system. For example, if they are not politically feasible to protect - for example areas that are already in private land and with considerable private investment (e.g. urban or intensive agriculture), then it might be better to consider alternative conservation actions, and not allocate these to protected areas. Alternatively, chemical run-off or drift from intensive agricultural areas may pose a risk to conservation assets, so we may want to avoid these areas for ecological reasons as well.</p>
+<p>Similarly, there are reasons why some areas should really not be included in the reserve system. For example, if they are not politically feasible to protect - such as areas that are already in private land and with considerable private investment (e.g. urban or intensive agriculture), then it might be better to consider alternative conservation actions, and not allocate these to protected areas. Alternatively, spillovers such as invasive species, chemical run-off or drift from intensive agricultural areas may pose a risk to conservation assets, so we may want to avoid these areas for ecological reasons as well.</p>
 <p>Sometimes the ‘cost’ data is enough to push solutions away from these areas (or the feature benefit data towards them), but usually it is best to specify this directly into the problem.</p>
 <p>We learnt how to lock in and lock out areas in the example above, using the constraints:</p>
 <pre class="r"><code># locking in protected areas
@@ -240,30 +253,44 @@ p_lout &lt;- p0 %&gt;%
   add_locked_out_constraints(intensiveareas&gt;50) 
 
 s_lout &lt;- solve(p_lout)</code></pre>
-<p>We can compare these to a version of the problem that doesn’t have the lock in/out constraints. Hint: while you can overwrite problem specifications, you will need to re-construct a problem to remove them.</p>
+<p>We can compare these to a version of the problem that doesn’t have the lock in/out constraints. Hint: while you can pipe new specifications onto existing problems, you may need to re-construct a problem to remove them. My recommendation is: if in doubt, re-specify the problem from scratch.</p>
 <p>We also might like to consider other options here, for example avoiding the areas with a forest smallholder density greater than a certain number.</p>
 <p>Then, we can compare the cost and patterns of the solutions.</p>
+<p>A more advanced method of looking at the contribution of the existing protected areas to an optimized solution that locks them in, is to restrict (i.e. lockout) the problem to the area of the solution where they are locked in, but do not lock them in, and then see if they are still in the new solution. For example:</p>
+<pre class="r"><code># we have our lockin solution from above
+s_lin
+
+# we can create a lockout from the inverse of this
+newlockout &lt;- s_lin - 1
+newlockout[newlockout==-1] &lt;- 1
+
+# then use this in the new problem specification, without pa locked in
+# remember, to remove a lock-in, we need to respecify the problem from scratch!
+
+p_newlout &lt;- problem(soyprofit, stack(forestbirds, otherbirds, mammals)) %&gt;%
+  add_min_set_objective() %&gt;%
+  add_relative_targets(0.17) %&gt;%
+  add_binary_decisions() %&gt;%
+  add_lpsymphony_solver(gap=0.1) %&gt;% 
+  add_locked_out_constraints(newlockout)
+
+# then we can compare the solutions, adding and plotting, etc.</code></pre>
 <p>Some discussion points:</p>
 <ul>
-<li><em>What is the ‘cost’ of locking in/out certain areas?</em></li>
+<li><em>Why might we lock in or lock out certain areas?</em></li>
+<li><em>How is locking in/out different from specifying this through the cost layer?</em></li>
+<li><em>What is the ‘cost’ of locking in/out certain areas in terms of lost opportunity to agriculture or area?</em></li>
 <li><em>What are the cells that are selected differently?</em></li>
 <li><em>What does the ‘cost’ we are using represent, and what are its benefits, and shortcomings?</em></li>
-<li><em>What other data might be useful here? Where or how might we get that?</em></li>
+<li><em>What other data might be useful here? Where or how might we get these data?</em></li>
 </ul>
 </div>
 <div id="scenario-5-a-portfolio-of-solutions" class="section level2">
 <h2>Scenario 5: A portfolio of solutions</h2>
 <p>The ‘optimal’ solution found by Prioritizr is usually an optimal option, as defined by the problem entered… but what if multiple options are all pretty good? What if we want to consider this range of options?</p>
-<p>Prioritizr offers a couple of ways to explore these, in <a href="https://prioritizr.github.io/prioritizr/reference/portfolios.html">portfolios</a></p>
-<p>Note, when generating these solutions it is often good to reduce the optimality criterion (via the <code>gap</code> parameter). This results in any one solution perhaps not being as optimal as previously, but results in a greater range of scenarios that are almost as good.</p>
-<p>First, the <code>add_cuts_portfolio</code> option, which uses ‘Bender’s cuts’. This option iteratively solves a number of solutions, each time adding constraints to forbid replication of previously attained solutions. For example, the following code will produce a portfolio of 5 solutions.</p>
-<pre class="r"><code># adding a cuts portfolio, and changing the 'gap'
-p_cut10 &lt;- p0 %&gt;% 
-  add_cuts_portfolio(number_solutions = 10) %&gt;%
-  add_default_solver(gap = 0.2, verbose = FALSE)
-
-s_cut10 &lt;- solve(p_cut10)</code></pre>
-<p>Second, the <code>add_shuffle_portfolio</code> option, which reshuffles the input data randomly. Because the solver returns the first best solution in the list of best solutions that satisfy the optimality gap criterion, the order of data input is often important. For example, the following code will attempt 10 different re-shuffles of the data, but only return the solutions that do not duplicate others.</p>
+<p>Prioritizr offers a couple of ways to explore these, in <a href="https://prioritizr.net/reference/index.html#section-portfolios">portfolios</a></p>
+<p>Note, when generating these solutions it is often good to reduce the optimality criterion (via increasing the <code>gap</code> parameter). This results in any one solution perhaps not being as optimal as previously, but results in a greater range of scenarios that are at least as good as the gap you specify.</p>
+<p>We will use the <code>add_shuffle_portfolio</code> option, which reshuffles the input data randomly. This is the quickest option. Because the solver returns the first best solution in the list of best solutions that satisfy the optimality gap criterion, the order of data input is often important. For example, the following code will attempt 10 different re-shuffles of the data, but only return the solutions that do not duplicate others.</p>
 <p>Note, because this procedure involves a randomization procedure, if we want to replicate it exactly later, we need to <code>set.seed()</code> to a certain number.</p>
 <pre class="r"><code># set the random number seed
 set.seed(123)
@@ -274,21 +301,19 @@ p_shuf10 &lt;- p0 %&gt;%
   add_default_solver(gap = 0.2, verbose = FALSE)
 
 s_shuf10 &lt;- solve(p_shuf10)</code></pre>
-<p>This then returns not just a single raster layer with the solution, and associated attributes, but rather a stack of raster layers, and associated attributes. In other words, while we <code>plot(s0)</code> for the basic solution, we might <code>plot(stack(s_cut10))</code> to see all the different solutions.</p>
+<p>This then returns not just a single raster layer with the solution, and associated attributes, but rather a stack of raster layers, and associated attributes. In other words, while we <code>plot(s0)</code> for the basic solution, we might <code>plot(stack(s_shuf10))</code> to see all the different solutions.</p>
 <p>For each of these portfolios, we might also want to create a layer with the ‘selection frequency’, or how many times each cell was selected. For this we would sum the layers in the stack of solutions, to give one layer for each portfolio.</p>
 <pre class="r"><code># calculate the selection frequencies
-s_cut10_freq &lt;- sum(stack(s_cut10))
 s_shuf10_freq &lt;- sum(stack(s_shuf10))
 
-# then plot these layers
-plot(s_cut10_freq)
+# then plot this layer
 plot(s_shuf10_freq)</code></pre>
-<p>Hint: It might also be prudent to check the costs as well. Is there a point where the costs increase markedly, or are they all pretty similar? How do the costs compare with the optimized value of the reference point solution?</p>
+<p>Important note: We have to be careful when interpreting these selection frequency figures. High frequencies do mean that those cells were selected in multiple solutions. But even the cells that are low frequency were important in their respective solutions.</p>
+<p>Note: A more precise way of estimating replacability is by first identifying different clumps (e.g. by using the <code>raster::clump()</code> function), and then iteratively adding a lockout that includes each clump in turn.</p>
 <p>Some discussion points:</p>
 <ul>
-<li><em>Are the two portfolio options different? How?</em></li>
-<li><em>We have to be careful when interpreting these selection frequency figures. High frequencies do mean that those cells were selected in multiple solutions. But even the cells that are low frequency were important in their respective solutions.</em></li>
-<li><em>How then might we recommend this information be used in a conservation planning process?</em></li>
+<li><em>Where are the areas that seem easily replacable, and where are the areas that are more irreplacable?</em></li>
+<li><em>How might we recommend this information be used in a conservation planning process?</em></li>
 <li><em>Suppose we identify a group of cells as ‘important’, but this area turns out to have an invasive species in it that requires an extra cost. How could we work out if it is worthwhile to include these cells, and pay to manage the invasive species, or to avoid these cells and select others? What might be the implication of these two strategies for conservation more generally?</em></li>
 </ul>
 </div>

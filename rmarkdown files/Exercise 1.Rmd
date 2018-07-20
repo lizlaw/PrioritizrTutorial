@@ -107,11 +107,13 @@ for(i in 1:length(packList)){
   }
 }
 # load packages
-sapply(packList, require, character.only=T)
+sapply(packList, library, character.only=T)
 
 # install and load lpsymphony (this comes from a different source)
-source("https://bioconductor.org/biocLite.R") 
-biocLite("lpsymphony") # on one computer it asked for updating some other packages --> "n" is
+if(!is.element(noquote('lpsymphony'),installed.packages()[,1])){
+  source("https://bioconductor.org/biocLite.R") 
+  biocLite("lpsymphony") # on one computer it asked for updating some other packages --> "n" is
+}
                    #  a possible option
 library(lpsymphony)
 
@@ -200,8 +202,8 @@ Note, is is still possible the different versions of prioritizr and the solvers 
 ```{r, eval=TRUE, echo=TRUE}
 # version numbers of (some of) the packages that we are using:
 citation()
-citation(lpsymphony)
-citation(prioritizr)
+citation('lpsymphony')
+citation('prioritizr')
 ```
 
 ### Some useful references for Prioritizr:
