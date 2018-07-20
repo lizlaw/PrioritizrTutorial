@@ -44,3 +44,9 @@
   started scenarios around 11.15 - but then stopped without fully doing these. more just discussed until 11.45. then finished. 
   
   versions: there is a difference (found in exercise 2) between prior version and the current version of Prioritizr. no massive. but small differences in the cells selected and the achievement/cost. may just need to update the instructions with the new version.
+
+# notes from 20th july - Humboldt Uni Berlin
+  Really quick run through of this managed to get through to the end of Exercise 2 in 1.5 hours. 
+  Notes that lpsymphony will give slightly different answers each time to the same problem (something that doesnt occur with Gurobi, to my knowledge and experience)
+  Don't know why. something about the algorithms i guess. 
+  
